@@ -1,56 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Professional Treadmill Tracker</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Treadmill Tracker</title>
   </head>
   <body>
-    <div class="tracker-container">
-      <h1>Treadmill Tracker</h1>
+    <h1>Treadmill Tracker</h1>
 
-      <div class="metric">
-        <div class="metric-label">Time</div>
-        <div class="metric-value" id="time">0:00</div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-label">Speed (km/h)</div>
-        <div class="metric-value" id="speed">0.0</div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="metric">
-        <div class="metric-label">Distance (km)</div>
-        <div class="distance-values">
-          <div class="distance-value total-distance" id="total-distance">
-            0.00
-          </div>
-          <div class="distance-value current-distance" id="current-distance">
-            0.00
-          </div>
-        </div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-label">Calories</div>
-        <div class="metric-value" id="calories">0</div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-label">Steps</div>
-        <div class="metric-value" id="steps">0</div>
-      </div>
-
-      <div class="buttons">
-        <button class="start-btn" id="start-btn">Start</button>
-        <button class="stop-btn" id="stop-btn">Stop</button>
-        <button class="reset-btn" id="reset-btn">Reset</button>
-      </div>
+    <div>
+      <p>Time: <span class="time">0:00</span></p>
+      <p>Distance: <span class="distance">0.00</span> km</p>
+      <p>Steps: <span class="steps">0</span></p>
+      <p>Calories: <span class="calories">0</span></p>
+      <p>Speed: <span class="speed">0.1</span> m/s</p>
     </div>
 
-    <script src="script.ts"></script>
+    <div>
+      <input type="range" min="1" max="30" value="10" class="speed-range" />
+      <p>Adjust Speed</p>
+    </div>
+
+    <div>
+      <button onclick="onStart()">Start</button>
+      <button onclick="onStop()">Stop</button>
+      <button onclick="onReset()">Reset</button>
+    </div>
+
+    <script type="module" src="script.js"></script>
   </body>
 </html>

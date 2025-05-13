@@ -1,108 +1,69 @@
-let timer: number = 0;
-let interval: number | null = null;
-let isRunning: boolean = false;
-let currentSpeed: number = 0;
-let totalDistance: number = 0;
-let currentSessionDistance: number = 0;
-let calories: number = 0;
-let steps: number = 0;
+let time = 0;
+let speed = 1;
+let distance = 0;
+let calories = 0;
+let steps = 0;
+let intId: number | undefined;
 
-const timeElement = document.getElementById("time") as HTMLElement;
-const speedElement = document.getElementById("speed") as HTMLElement;
-const totalDistanceElement = document.getElementById(
-  "total-distance"
-) as HTMLElement;
-const currentDistanceElement = document.getElementById(
-  "current-distance"
-) as HTMLElement;
-const caloriesElement = document.getElementById("calories") as HTMLElement;
-const stepsElement = document.getElementById("steps") as HTMLElement;
-const startButton = document.getElementById("start-btn") as HTMLButtonElement;
-const stopButton = document.getElementById("stop-btn") as HTMLButtonElement;
-const resetButton = document.getElementById("reset-btn") as HTMLButtonElement;
-
-startButton.addEventListener("click", startTracker);
-stopButton.addEventListener("click", stopTracker);
-resetButton.addEventListener("click", resetTracker);
-
-function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+function getDistanceInMetrSecond(speed: number): number {
+  return +(speed / 3.6).toFixed(1);
 }
-function updateDisplay(): void {
-  timeElement.textContent = formatTime(timer);
-  speedElement.textContent = currentSpeed.toFixed(1);
-  totalDistanceElement.textContent = totalDistance.toFixed(2);
-  currentDistanceElement.textContent = currentSessionDistance.toFixed(2);
-  caloriesElement.textContent = Math.floor(calories).toString();
-  stepsElement.textContent = Math.floor(steps).toString();
-}
-function track(): void {
-  timer++;
 
-  if (isRunning && currentSpeed < 6.0) {
-    currentSpeed += 0.1;
+function getKcall(distance: number) {
+  return Math.round(70 * 0.0005 * distance);
+}
+
+const onStart = () => {
+  if (!intId) {
+    intId = setInterval(() => {
+      time++;
+      distance = distance + getDistanceInMetrSecond(speed);
+      distance = +distance.toFixed(1);
+      steps = Math.trunc(distance * 2);
+      calories = getKcall(distance);
+      updateFrontend();
+      console.log(time, distance, steps, calories);
+    }, 1000);
   }
-  const distanceIncrement = currentSpeed / 3600;
-  totalDistance += distanceIncrement;
-  currentSessionDistance += distanceIncrement;
-  calories += currentSpeed * 0.5;
+};
 
-  steps += distanceIncrement * 1300;
+const onStop = () => {
+  clearInterval(intId);
+  intId = undefined;
+};
 
-  updateDisplay();
-}
-
-function startTracker(): void {
-  if (!isRunning) {
-    isRunning = true;
-    interval = window.setInterval(track, 1000);
-    startButton.disabled = true;
-    stopButton.disabled = false;
-  }
-}
-
-function stopTracker(): void {
-  if (isRunning) {
-    isRunning = false;
-
-    const speedDecreaseInterval = window.setInterval(() => {
-      if (currentSpeed > 0) {
-        currentSpeed = Math.max(0, currentSpeed - 0.5);
-        updateDisplay();
-      } else {
-        window.clearInterval(speedDecreaseInterval);
-        if (interval) {
-          window.clearInterval(interval);
-          interval = null;
-        }
-        startButton.disabled = false;
-      }
-    }, 200);
-
-    stopButton.disabled = true;
-  }
-}
-
-function resetTracker(): void {
-  if (interval) {
-    window.clearInterval(interval);
-    interval = null;
-  }
-
-  timer = 0;
-  currentSpeed = 0;
-  totalDistance = 0;
-  currentSessionDistance = 0;
-  calories = 0;
+const onReset = () => {
+  clearInterval(intId);
+  intId = undefined;
+  time = 0;
+  distance = 0;
   steps = 0;
-  isRunning = false;
+  calories = 0;
+  speed = 1;
+  updateFrontend();
+  (document.querySelector(".speed-range") as any).value = "10";
+};
 
-  updateDisplay();
-  startButton.disabled = false;
-  stopButton.disabled = true;
+function updateFrontend() {
+  document.querySelector(".time")!.textContent = formatTime(time);
+  document.querySelector(".distance")!.textContent = (distance / 1000).toFixed(
+    2
+  );
+  document.querySelector(".calories")!.textContent = calories.toString();
+  document.querySelector(".steps")!.textContent = steps.toString();
+  document.querySelector(".speed")!.textContent = (speed / 10).toString();
 }
 
-updateDisplay();
-stopButton.disabled = true;
+function formatTime(second: number): string {
+  let minute = Math.trunc(second / 60);
+  second = second - minute * 60;
+
+  let time = "0.00";
+  time = `${minute}:${second < 10 ? `0${second}` : second}`;
+  return time;
+}
+
+document.querySelector(".speed-range")?.addEventListener("input", (e: any) => {
+  const inputValue = e.target?.value;
+  speed = inputValue;
+});
